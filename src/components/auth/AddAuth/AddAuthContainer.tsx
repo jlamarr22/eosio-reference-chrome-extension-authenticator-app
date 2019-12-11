@@ -3,6 +3,8 @@ import { withRouter, RouteComponentProps } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { sha256 } from 'hash.js'
 import { isValidPrivate, privateToPublic } from 'eosjs-ecc'
+import { ec } from 'elliptic';
+import { PrivateKey } from 'eosjs/dist/eosjs-jssig'
 
 import AddAuthView from 'components/auth/AddAuth/AddAuthView'
 import { AddAuthFormInputs } from 'components/auth/AddAuth/AddAuthView'
@@ -80,10 +82,14 @@ export class AddAuthContainer extends React.Component<Props, State> {
     let nicknameError = ''
     let passphraseError = ''
 
-    if (!isValidPrivate(privateKey)) {
+    console.log('checking for valid private key in AddAuthContainer')
+    const private = PrivateKey.fromString(privateKey).toEllpitic();
+    console.info(JSON.stringify(private));
+    if (private) {
       privateKeyError = ERROR_MESSAGES.INVALID_PRIVATE_KEY
     }
 
+    console.log('converting private to public in AddAuthContainer')
     if (!privateKeyError && this.auths.find((auth) => auth.publicKey === privateToPublic(privateKey))) {
       privateKeyError = ERROR_MESSAGES.DUPLICATE_PRIVATE_KEY
     }
